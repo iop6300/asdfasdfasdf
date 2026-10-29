@@ -1,42 +1,28 @@
--- 설계 예시 전용. 비어 있는 새 교육용 Supabase DB에 한 번만 적용하는 기본 SQL입니다.
--- 기존 DB/테이블에는 이 파일을 실행하지 마세요. 기존 데이터는 지우거나 덮어쓰지 않습니다.
--- 실행하지 않았습니다.
--- UUID id, user_id, created_at, 제약 및 RLS는 DB 연결을 위한 추가 설계입니다.
--- 원본에서 확인한 값: month, department, target, actual.
--- 한 행은 한 사용자의 한 달·한 부서 KPI이며 금액 단위는 원, 안전한 정수입니다.
-
+-- 교육용 새 프로젝트에서 한 번 실행합니다. 기존 테이블은 삭제하지 않습니다.
+begin;
 create table public.kpi_records (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete cascade,
-  month date not null,
-  department text not null check (length(trim(department)) > 0),
-  target bigint not null check (target between 0 and 1000000000000),
-  actual bigint not null check (actual between 0 and 1000000000000),
+  user_id uuid not null default auth.uid() references auth.users(id),
+  source_id text,
+  month text not null check (month ~ '^[0-9]{4}-(0[1-9]|1[0-2])$'),
+  team text not null check (length(btrim(team)) between 1 and 80 and team = btrim(team)),
+  target bigint not null check (target between 0 and 9007199254740991),
+  actual bigint not null check (actual between 0 and 9007199254740991),
   created_at timestamptz not null default now(),
-  constraint kpi_records_month_first_day check (extract(day from month) = 1),
-  constraint kpi_records_user_month_department_unique unique (user_id, month, department)
+  unique (user_id, month, team),
+  unique (user_id, source_id)
 );
-
+-- user_id가 선두인 유일 인덱스가 사용자별 조회와 RLS 검사를 지원합니다.
 alter table public.kpi_records enable row level security;
-
--- API object privileges are separate from row policies. No anon access is granted.
--- INSERT with ON CONFLICT also requires UPDATE; RLS still limits rows to auth.uid().
-grant usage on schema public to authenticated;
-grant select, insert, update, delete on table public.kpi_records to authenticated;
-
-create policy "Users can read their own KPI records"
-  on public.kpi_records for select to authenticated
-  using (auth.uid() = user_id);
-
-create policy "Users can insert their own KPI records"
-  on public.kpi_records for insert to authenticated
-  with check (auth.uid() = user_id);
-
-create policy "Users can update their own KPI records"
-  on public.kpi_records for update to authenticated
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
-create policy "Users can delete their own KPI records"
-  on public.kpi_records for delete to authenticated
-  using (auth.uid() = user_id);
+revoke all on public.kpi_records from anon;
+grant select, insert, update, delete on public.kpi_records to authenticated;
+create policy kpi_select_own on public.kpi_records for select to authenticated
+  using ((select auth.uid()) = user_id);
+create policy kpi_insert_own on public.kpi_records for insert to authenticated
+  with check ((select auth.uid()) = user_id);
+create policy kpi_update_own on public.kpi_records for update to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
+create policy kpi_delete_own on public.kpi_records for delete to authenticated
+  using ((select auth.uid()) = user_id);
+commit;

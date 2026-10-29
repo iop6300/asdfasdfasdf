@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>KPI 저장 실습</title><link rel="stylesheet" href="./style.css"></head>
+<body><header><small>Supabase 연결 실습</small><h1>KPI 대시보드</h1></header><main>
+<p id="connection" role="status">미연결 · 설정 확인 중</p><p id="message" class="message" role="status" aria-live="polite"></p>
+<section class="panel"><h2>앱 로그인</h2><p>Supabase 관리 콘솔 계정과 별개의 앱 사용자가 필요합니다. 준비된 앱 사용자로 로그인하세요.</p>
+<form id="login"><fieldset id="login-fields" disabled><div class="grid two"><label>이메일<input id="email" type="email" autocomplete="username" required></label><label>비밀번호<input id="password" type="password" autocomplete="current-password" required></label></div><button class="primary">로그인</button></fieldset></form>
+<p id="account">로그아웃 상태</p><button id="logout" hidden>로그아웃</button></section>
+<section class="panel"><h2>KPI 한 건 저장</h2><form id="record"><fieldset id="record-fields" disabled><div class="grid two">
+<label>월<input id="month" type="month" value="2026-10" required></label><label>부서<input id="team" maxlength="80" value="영업B" required></label>
+<label>목표 (원)<input id="target" type="number" min="0" max="9007199254740991" step="1" value="8000000" required></label><label>실적 (원)<input id="actual" type="number" min="0" max="9007199254740991" step="1" value="7200000" required></label></div><button class="primary">DB에 저장</button></fieldset></form></section>
+<section class="panel"><h2>본인 저장 데이터</h2><button id="refresh" disabled>다시 조회</button><p id="summary">로그인 후 조회할 수 있습니다.</p><div class="table-wrap"><table><thead><tr><th>월</th><th>부서</th><th>목표 원</th><th>실적 원</th><th>달성률</th></tr></thead><tbody id="rows"></tbody></table></div></section>
+</main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./config.js"></script><script src="./app.js"></script></body></html>

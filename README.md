@@ -1,33 +1,26 @@
-# KPI 성과 대시보드 실습앱
+# Supabase 기본 완성 예제 · 대시보드 유지
 
-## 실행
+기존 최소 저장 화면을 월·부서 필터·합계·부서별 막대·근거표가 있는 대시보드로 갱신했습니다. 설정 전에는 샘플 6건을 표시합니다.
 
-폴더의 `index.html`을 브라우저에서 연다. 별도 프레임워크나 빌드는 없다. `config.js`가 유효한 Supabase URL과 공개 anon key를 포함하면 DB 로그인 화면이 표시된다. 설정이 없거나 자리표시자면 샘플 모드와 미연결 안내로 실행된다. 직접 파일로 열어도 샘플 데이터는 `core.js`에서 로드하며 `fetch`하지 않는다.
+1. index.html을 열고 전체 99%, 10월 영업B 90%를 확인합니다.
+2. 새 교육용 DB에는 schema.sql을 본인이 검토·한 번 실행합니다. 이미 테이블이 있으면 재실행하지 않습니다.
+3. 본인 config.js에 Project URL·공개 publishable key를 입력합니다. 기존 파일의 설정값은 이번 수정에서 보존했습니다.
+4. Supabase 연결 → 준비한 앱 사용자 로그인 → 한 건 저장 → 다시 조회합니다.
+5. 새로고침 후 Supabase 연결을 선택해 기존 로그인과 저장값을 확인합니다. 다시 로그인해서도 같은 값을 확인합니다.
 
-## 파일 역할
+- app.js: 샘플/DB 공용 필터·차트·표. core.js: 계산·검사.
+- backend.js: 로그인·로그아웃·본인 저장·페이지별 전체 조회.
+- vendor/supabase.js: 고정 버전 SDK. 출처는 vendor/출처.md.
+- 샘플 모드에서는 DB 저장이 비활성화됩니다. 샘플은 자동 DB 삽입하지 않습니다.
+- 수정·삭제·관리자·파일 가져오기는 04 확장 예제에서 확인합니다.
+- 이전_기본저장예제는 기존 화면 코드 보존용입니다. 실제 연결 설정은 복사하지 않았습니다.
 
-- `index.html`: 화면 구조, 상대 경로 스타일·스크립트 연결.
-- `style.css`: 대시보드와 작은 화면 스타일.
-- `core.js`: 샘플, 입력값 검사, 필터, 합계와 달성률 계산.
-- `app.js`: 화면 동작, Supabase Auth/REST 요청, DB 응답·재조회 확인.
-- `config.js`: 로컬 연결 설정. 이미 있는 파일을 유지한다. Git에 올리지 않는다.
-- `config.example.js`: 실제 값이 없는 공개 설정 예시.
-- `data/kpi.json`, `data/kpi.csv`: 가져오기·원본 비교용 사본. 앱이 자동으로 읽지 않는다.
-- `schema.sql`: 비어 있는 새 교육용 DB의 기본 테이블과 RLS 설계.
-- `schema-existing-db-review.sql`: 기존 테이블 구조와 정책을 확인하는 읽기 전용 SQL.
-- `schema-existing-db-migration-template.sql`: 기존 데이터를 유지하면서 nullable 소유자/생성시각 컬럼을 추가하는 검토용 초안. 실행 전 실제 스키마·기존 행 소유자 매핑 검토가 필요하다.
-- `prd.md`, `검증체크리스트.md`: 화면·요구사항 및 확인 항목.
+GitHub 앱 파일: index.html, style.css, core.js, app.js, backend.js, config.js, vendor/, .nojekyll.
 
-## 샘플 모드와 DB 모드
+## 실행과 공개 범위
+index.html을 브라우저로 열면 샘플을 확인할 수 있습니다. DB 로그인 실습은 본인 HTTPS 웹사이트로 배포한 뒤 확인하세요. 이 작업에서 외부 계정·DB·GitHub 배포는 수행하지 않았습니다.
 
-샘플 모드에서 입력·삭제한 값은 현재 화면에만 반영되고 자동 저장되지 않는다. 새로고침하면 원래 샘플로 돌아간다. DB 모드에서는 이메일·비밀번호로 기존 Supabase Auth 사용자로 로그인한다. 이 앱은 사용자 계정을 만들지 않는다. 조회·저장·삭제 요청에 로그인한 사용자 ID 조건을 넣고, RLS 정책도 본인 행으로 제한한다. DB 저장은 응답 행을 확인하고 다시 조회한 값이 같은지 비교한 뒤 완료로 표시한다. 샘플 데이터는 DB로 보내지 않는다.
+실행 파일과 data/·vendor/의 실제 참조 파일만 앱 저장소에 올립니다. SQL·요구사항·수업자료·이전_기본저장예제·검증자료는 공개 앱 파일에 포함하지 않습니다. 비밀번호·비밀 키는 어떤 공개 파일에도 넣지 않습니다.
 
-설정값이 있어도 최초 화면에서는 실제 서버 연결을 확인하지 않은 상태로 표시한다. 로그인 이후 DB 조회 성공 시 연결/본인 조회 확인 상태가 된다. 실제 행 저장을 해보지 않았다면 저장·재조회 검증까지 완료된 것은 아니다.
-
-## SQL 적용 주의
-
-`schema.sql`은 기존 DB에 실행하는 변경 스크립트가 아니다. **비어 있는 새 교육용 Supabase DB에 한 번만** 적용하는 기본 SQL이다. 실행하지 않았다. 기존 DB가 있으면 먼저 `schema-existing-db-review.sql` 결과와 기존 행의 소유자를 검토한다. migration template은 행을 특정 사용자에게 임의 귀속하지 않고 기존 행을 삭제하거나 덮어쓰지 않는다. 최종 변경 SQL은 실제 구조와 소유자 매핑 검토 후 별도로 확정해야 한다.
-
-## 공개 저장소에 올릴 파일
-
-`index.html`, `style.css`, `app.js`, `core.js`, `data/kpi.json`, `data/kpi.csv`, `prd.md`, `README.md`, `검증체크리스트.md`, `schema.sql`, `schema-existing-db-review.sql`, `schema-existing-db-migration-template.sql`, `config.example.js`를 올릴 수 있다. `config.js`는 `.gitignore` 대상이다. 브라우저에 공개되는 anon/publishable key만 사용하고 service-role key 등 비밀 키를 클라이언트 코드에 넣지 않는다.
+## 확인
+검증체크리스트.md와 통합 자료의 04_검증/검증결과.md를 확인하세요. 실제 Supabase 계정·DB·RLS 검증은 별도로 필요합니다.

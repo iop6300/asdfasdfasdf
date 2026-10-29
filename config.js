@@ -1,5 +1,7 @@
-// 공개 설정 예시의 자리표시자입니다. 아직 앱에서 읽거나 연결하지 않습니다.
-window.APP_CONFIG = Object.freeze({
-  SUPABASE_URL: 'https://klvwgubemlaiptgkkaih.supabase.co',
-  SUPABASE_ANON_KEY: 'sb_publishable_n8ZptHq4ALaPK1lDIAXdqQ_GtjYxLsK'
-});
+// 실제 값이 아닌 예시입니다. 기존 앱 폴더에서 config.js로 복사해 사용합니다.
+// 프로젝트 주소와 공개용 publishable key만 넣으세요.
+// 비밀번호, secret/service_role 키는 넣지 않습니다.
+window.KPI_CONFIG = {
+  supabaseUrl: "https://klvwgubemlaiptgkkaih.supabase.co",
+  supabasePublishableKey: "sb_publishable_n8ZptHq4ALaPK1lDIAXdqQ_GtjYxLsK"
+};
