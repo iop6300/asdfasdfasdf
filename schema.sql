@@ -19,6 +19,11 @@ create table public.kpi_records (
 
 alter table public.kpi_records enable row level security;
 
+-- API object privileges are separate from row policies. No anon access is granted.
+-- INSERT with ON CONFLICT also requires UPDATE; RLS still limits rows to auth.uid().
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on table public.kpi_records to authenticated;
+
 create policy "Users can read their own KPI records"
   on public.kpi_records for select to authenticated
   using (auth.uid() = user_id);
