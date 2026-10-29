@@ -1,26 +1,59 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>KPI 대시보드</title><style>:root{font-family:'Malgun Gothic',system-ui,sans-serif;color:#1c293b;background:#f4f5f7;--accent:#2357bb;--line:#dce1e9;--muted:#5c687b}*{box-sizing:border-box}body{margin:0;line-height:1.7}header{background:#182940;color:white;padding:24px max(20px,calc((100vw - 1120px)/2))}header h1{font-size:26px;margin:6px 0}header a{color:#d9e7ff}small,.muted{color:var(--muted)}header small{color:#c0d3ef}main{max-width:1160px;margin:auto;padding:20px 20px 60px}h2{font-size:21px;margin-top:0}h3{font-size:17px}p{margin:10px 0}.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:23px;margin:18px 0;min-width:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,235px),1fr));gap:15px}.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;margin:20px 0}.stat{border:1px solid var(--line);border-radius:12px;padding:18px;background:white}.stat strong{display:block;font-size:25px;overflow-wrap:anywhere}.stat span{font-size:13px;color:var(--muted)}button,input,textarea,select{font:inherit;color:inherit}input,textarea,select{width:100%;padding:10px;border:1px solid #aeb8c6;border-radius:7px;background:white}textarea{min-height:100px;resize:vertical}label{display:grid;gap:4px;font-size:14px}button,.button{padding:9px 14px;border:1px solid #cbd2dc;border-radius:7px;background:white;cursor:pointer;display:inline-block;text-decoration:none;color:var(--accent)}button.primary,.button.primary{background:var(--accent);color:white;border-color:var(--accent)}button:disabled{opacity:.5;cursor:wait}button:hover,.button:hover{filter:brightness(.95)}:focus-visible{outline:3px solid #d88a19;outline-offset:3px}a{color:var(--accent);text-underline-offset:3px}.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:15px 0}.toolbar>label{flex:1;min-width:140px}.message{background:#eaf0fc;border-left:4px solid var(--accent);padding:13px;white-space:pre-wrap;margin:16px 0}.message:empty{display:none}.message.error{color:#8f202d;background:#fff0ef;border-color:#b62636}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:11px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}th{background:#f0f3f8;white-space:nowrap}.num{text-align:right;white-space:nowrap}.badge{background:#eaf0fc;border-radius:5px;padding:3px 8px;font-size:13px;display:inline-block}.barrow{display:grid;grid-template-columns:75px 1fr 95px;gap:12px;align-items:center;margin:15px 0}.track{height:18px;background:#e5eaf2;border-radius:5px;overflow:hidden}.fill{height:100%;background:#3469c5}.report{white-space:pre-wrap;overflow-wrap:anywhere;font:15px/1.9 'Malgun Gothic',sans-serif}.hero{padding:36px;border-radius:16px;background:#182940;color:white}.hero h2{font-size:34px}.kicker{font-size:12px;letter-spacing:.1em;color:#a8c7ff}.links{display:flex;flex-wrap:wrap;gap:9px}pre.prompt{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 'Malgun Gothic',sans-serif;padding:18px;background:#f1f4fa;border:1px solid var(--line);border-radius:8px}details summary{cursor:pointer;font-weight:700}code{overflow-wrap:anywhere}.check{display:flex;align-items:start;gap:9px}.check input{width:auto;margin-top:8px}.course-card h2{margin-bottom:5px}.tag{font-size:12px;font-weight:bold;color:#2357bb}.footer{font-size:13px;color:var(--muted);margin-top:24px}[hidden]{display:none!important}@media(max-width:700px){header h1{font-size:22px}main{padding:15px 13px 40px}.grid.two{grid-template-columns:1fr}.panel{padding:18px}.hero{padding:23px}.hero h2{font-size:27px}.barrow{grid-template-columns:60px 1fr 85px;font-size:13px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}th,td{padding:8px}.stat strong{font-size:21px}}@media print{header,button,.toolbar,.no-print,.message,details{display:none!important}main{max-width:none;padding:0}body{background:white}.panel{box-shadow:none;border-color:#bbb;break-inside:avoid}.report{font-size:11px}.stats{display:flex}.stat{flex:1}.lesson .panel{break-inside:auto}.links{display:none}.hero{background:white;color:black;border:1px solid #aaa}}
-</style></head><body><header><small>경기도 디지털배움터 · 2026</small><h1>KPI 대시보드</h1></header><main><div id="message" class="message" role="status" aria-live="polite"></div><div id="app"></div></main><script>'use strict';
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const clone=v=>JSON.parse(JSON.stringify(v));
-const fmt=n=>Number(n).toLocaleString('ko-KR',{maximumFractionDigits:2});
-const won=n=>fmt(n)+'원';
-function message(t,error=false){$('#message').textContent=t;$('#message').classList.toggle('error',error);}
-function saveJSON(name,data){download(name,JSON.stringify(data,null,2),'application/json');}
-function download(name,data,type='text/plain'){const url=URL.createObjectURL(new Blob([data],{type:type+';charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
-function numberValue(id,{integer=true,min=0,max=1e12}={}){const raw=$('#'+id).value.trim(),v=Number(raw);if(!raw||!Number.isFinite(v)||(integer&&!Number.isSafeInteger(v))||v<min||v>max)throw Error($('#'+id).closest('label').textContent.trim()+' 값을 확인하세요.');return v;}
-function dateOK(v){return /^\d{4}-\d{2}-\d{2}$/.test(v)&&!Number.isNaN(new Date(v+'T00:00:00Z').getTime())&&new Date(v+'T00:00:00Z').toISOString().slice(0,10)===v;}
-function stat(label,value){return '<div class="stat"><span>'+esc(label)+'</span><strong>'+esc(value)+'</strong></div>';}
-function readLocal(key,fallback){try{const s=localStorage.getItem(key);return s?JSON.parse(s):clone(fallback);}catch{return clone(fallback);}}
-function writeLocal(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true;}catch{message('브라우저 저장에 실패했습니다. 화면 데이터는 유지됩니다. JSON으로 백업하세요.',true);return false;}}
-function parseCSV(text){text=text.replace(/^\uFEFF/,'');let rows=[],row=[],field='',quoted=false,closed=false;for(let i=0;i<text.length;i++){let c=text[i];if(quoted){if(c==='"'){if(text[i+1]==='"'){field+='"';i++;}else{quoted=false;closed=true;}}else field+=c;}else if(c==='"'){if(field||closed)throw Error('CSV 따옴표 위치가 잘못됐습니다.');quoted=true;}else if(c===','||c==='\n'||c==='\r'){row.push(field);field='';closed=false;if(c!==','){if(c==='\r'&&text[i+1]==='\n')i++;if(row.some(x=>x!==''))rows.push(row);row=[];}}else{if(closed)throw Error('CSV 닫는 따옴표 뒤 문자를 확인하세요.');field+=c;}}if(quoted)throw Error('CSV 따옴표가 닫히지 않았습니다.');row.push(field);if(row.some(x=>x!==''))rows.push(row);return rows;}
-
-const SAMPLE=[{"id": "K001", "month": "2026-09", "team": "영업A", "target": 10000000, "actual": 9000000}, {"id": "K002", "month": "2026-09", "team": "영업B", "target": 8000000, "actual": 8800000}, {"id": "K003", "month": "2026-09", "team": "영업C", "target": 12000000, "actual": 10800000}, {"id": "K004", "month": "2026-10", "team": "영업A", "target": 10000000, "actual": 11000000}, {"id": "K005", "month": "2026-10", "team": "영업B", "target": 8000000, "actual": 7200000}, {"id": "K006", "month": "2026-10", "team": "영업C", "target": 12000000, "actual": 12600000}];
-let rows=clone(SAMPLE),visible=rows;
-$('#app').innerHTML=`<p>매출 목표와 실적을 합산합니다. 달성률은 실적 합계 ÷ 목표 합계 × 100이며, 행별 달성률의 평균을 사용하지 않습니다.</p><div class="panel no-print"><div class="toolbar"><label>CSV 불러오기<input id="import" type="file" accept=".csv,text/csv"></label><button id="sample">샘플 복원</button><button id="export">표시 자료 CSV 저장</button><button onclick="window.print()">인쇄</button></div><div class="toolbar"><label>월<select id="month"></select></label><label>부서<select id="team"></select></label><button id="clear">필터 초기화</button></div></div><div id="stats" class="stats" aria-live="polite"></div><div class="panel"><h2>부서별 목표 달성률</h2><p class="muted">막대는 100%에서 멈추며 실제 달성률은 숫자로 표시합니다.</p><div id="chart"></div></div><div class="panel"><h2>현재 필터의 근거 데이터</h2><div class="table-wrap"><table><thead><tr><th>ID</th><th>월</th><th>부서</th><th class="num">목표 원</th><th class="num">실적 원</th><th class="num">달성률</th></tr></thead><tbody id="rows"></tbody></table></div></div>`;
-function validate(data){const ids=new Set,keys=new Set;for(const r of data){if(!r.id||ids.has(r.id))throw Error('ID가 비었거나 중복되었습니다.');ids.add(r.id);if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(r.month)||!r.team)throw Error('월·부서를 확인하세요.');const k=r.month+'|'+r.team;if(keys.has(k))throw Error('같은 월·부서가 중복되었습니다.');keys.add(k);for(let n of ['target','actual']){if(String(r[n]).trim()===''||!Number.isSafeInteger(Number(r[n]))||Number(r[n])<0||Number(r[n])>1e12)throw Error('목표·실적은 0 이상의 정수여야 합니다.');r[n]=Number(r[n]);}}return data;}
-function rate(target,actual){return target===0?'목표 미설정':fmt(actual/target*100)+'%';}
-function options(){for(const [sel,key,label]of [['#month','month','모든 월'],['#team','team','모든 부서']])$(sel).innerHTML='<option value="">'+label+'</option>'+[...new Set(rows.map(r=>r[key]))].sort().map(v=>'<option>'+esc(v)+'</option>').join('');render();}
-function render(){visible=rows.filter(r=>(!$('#month').value||r.month===$('#month').value)&&(!$('#team').value||r.team===$('#team').value));let target=visible.reduce((s,r)=>s+r.target,0),actual=visible.reduce((s,r)=>s+r.actual,0);$('#stats').innerHTML=stat('목표 합계',won(target))+stat('실적 합계',won(actual))+stat('가중 달성률',rate(target,actual))+stat('표시 건수',visible.length+'건');$('#rows').innerHTML=visible.map(r=>'<tr><td>'+esc(r.id)+'</td><td>'+r.month+'</td><td>'+esc(r.team)+'</td><td class="num">'+fmt(r.target)+'</td><td class="num">'+fmt(r.actual)+'</td><td class="num">'+rate(r.target,r.actual)+'</td></tr>').join('')||'<tr><td colspan="6">자료가 없습니다.</td></tr>';let groups=new Map;for(let r of visible){let g=groups.get(r.team)||{t:0,a:0};g.t+=r.target;g.a+=r.actual;groups.set(r.team,g);}$('#chart').innerHTML=[...groups].map(([team,g])=>'<div class="barrow"><span>'+esc(team)+'</span><div class="track"><div class="fill" style="width:'+(g.t?Math.min(100,g.a/g.t*100):0)+'%"></div></div><strong>'+rate(g.t,g.a)+'</strong></div>').join('')||'자료가 없습니다.';}
-$('#month').onchange=render;$('#team').onchange=render;$('#clear').onclick=()=>{$('#month').value='';$('#team').value='';render();};$('#sample').onclick=()=>{rows=clone(SAMPLE);options();message('샘플 6건을 복원했습니다.');};$('#import').onchange=async ev=>{const f=ev.target.files[0];if(!f)return;try{if(f.size>2000000)throw Error('파일은 2MB 이하로 준비하세요.');let parsed=parseCSV(await f.text()),head=parsed.shift();const required=['id','month','team','target','actual'];if(!head||head.length!==5||new Set(head).size!==5||required.some(k=>!head.includes(k)))throw Error('필수 열: id,month,team,target,actual');let candidate=parsed.map((r,i)=>{if(r.length!==5)throw Error((i+2)+'행의 열 수를 확인하세요.');return Object.fromEntries(head.map((k,j)=>[k,r[j]]));});validate(candidate);rows=candidate;options();message(rows.length+'건을 불러왔습니다.');}catch(e){message(e.message+' 기존 자료를 유지합니다.',true);}ev.target.value='';};$('#export').onclick=()=>{const encode=v=>'"'+String(v).replace(/"/g,'""')+'"';download('KPI_필터결과.csv','\uFEFF'+[['id','month','team','target','actual'],...visible.map(r=>[r.id,r.month,r.team,r.target,r.actual])].map(r=>r.map(encode).join(',')).join('\r\n'),'text/csv');};validate(rows);options();
-</script></body></html>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KPI 성과 대시보드</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./config.js" defer></script>
+  <script src="./core.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+<main class="shell">
+  <header class="top"><div><div class="brand">TEAM PERFORMANCE</div><h1>KPI 성과 대시보드</h1><p>월별 목표와 실적을 한눈에 확인하세요.</p></div><span class="sample" id="modeBadge">연결 확인 중</span></header>
+  <section class="auth-panel panel" id="authPanel" hidden>
+    <div class="panel-head"><h2 id="authTitle">Supabase 로그인</h2><span class="hint" id="connectionState"></span></div>
+    <form id="authForm" class="auth-form">
+      <label class="field"><span>이메일</span><input id="authEmail" type="email" autocomplete="username" required></label>
+      <label class="field"><span>비밀번호</span><input id="authPassword" type="password" autocomplete="current-password" required></label>
+      <button class="primary" type="submit">로그인</button>
+    </form>
+    <p class="hint" id="authHelp">기존에 발급된 사용자 계정으로 로그인합니다. 이 화면은 계정을 만들지 않습니다.</p>
+  </section>
+  <section class="toolbar" aria-label="필터 및 작업">
+    <label class="field"><span>월</span><select id="monthFilter" aria-label="월 필터"></select></label>
+    <label class="field"><span>부서</span><select id="deptFilter" aria-label="부서 필터"></select></label>
+    <div class="actions">
+      <button id="resetFilter">필터 초기화</button>
+      <button id="sampleToggle">샘플 보기</button>
+      <button id="dbToggle" hidden>DB 모드</button>
+      <button class="primary" id="addToggle">＋ KPI 입력</button>
+      <button id="logout" hidden>로그아웃</button>
+    </div>
+  </section>
+  <div id="alert" class="alert" role="status" aria-live="polite" hidden></div>
+  <section class="cards" aria-live="polite">
+    <article class="card"><div class="label">목표 합계</div><strong id="targetTotal">0원</strong><small>선택 조건 기준</small></article>
+    <article class="card"><div class="label">실적 합계</div><strong id="actualTotal">0원</strong><small>선택 조건 기준</small></article>
+    <article class="card rate"><div class="label">전체 달성률</div><strong id="achievement">목표 미설정</strong><small>실적 합계 ÷ 목표 합계 × 100</small></article>
+  </section>
+  <section class="panel chart-panel"><div class="panel-head"><h2>부서별 목표 달성률</h2><span class="hint">현재 월·부서 필터 기준</span></div><div id="chart"></div></section>
+  <section class="panel" id="entryPanel" hidden>
+    <div class="panel-head"><h2>KPI 항목 입력</h2><span class="hint" id="saveNote"></span></div>
+    <form id="entryForm" class="form-grid">
+      <label class="field"><span>월</span><input type="month" id="entryMonth" required></label>
+      <label class="field"><span>부서</span><input id="entryDept" list="departments" maxlength="40" placeholder="예: 영업팀" required><datalist id="departments"></datalist></label>
+      <label class="field"><span>목표 (원)</span><input type="number" id="entryTarget" min="0" max="1000000000000" step="1" placeholder="0" required></label>
+      <label class="field"><span>실적 (원)</span><input type="number" id="entryActual" min="0" max="1000000000000" step="1" placeholder="0" required></label>
+      <button class="primary submit" type="submit">항목 저장</button>
+    </form>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>근거 데이터</h2><span class="hint" id="recordCount">0건</span></div>
+    <div class="table-scroll"><table><thead><tr><th>월</th><th>부서</th><th class="num">목표</th><th class="num">실적</th><th class="num">달성률</th><th></th></tr></thead><tbody id="evidenceRows"></tbody></table></div>
+  </section>
+  <p class="foot" id="modeFootnote"></p>
+</main>
+</body>
+</html>
